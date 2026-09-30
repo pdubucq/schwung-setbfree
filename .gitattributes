@@ -1,0 +1,8 @@
+# The tree is stored with LF. Without this, editing on Windows re-commits whole
+# files as CRLF: a single pass turned src/setbfree/ into a 14,088-line diff in
+# which not one character of code had changed.
+* text=auto eol=lf
+
+# Binaries.
+*.so binary
+*.png binary

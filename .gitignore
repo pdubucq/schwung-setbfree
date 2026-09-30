@@ -1,0 +1,18 @@
+# Build output
+build/
+build-host/
+dist/
+logs/
+*.tar.gz
+
+# Editor / IDE / OS — kept on the developer's machine, not published.
+.devcontainer/
+*.code-workspace
+.vscode/
+.idea/
+*.swp
+.DS_Store
+
+# Personal tooling. Useful locally, not part of the published surface:
+#   scripts/capture.sh runs every build stage and tees the output to logs/
+scripts/capture.sh

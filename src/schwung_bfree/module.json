@@ -1,0 +1,107 @@
+{
+    "id": "setBfree-organ",
+    "name": "setBfree Tonewheel Organ",
+    "abbrev": "B3",
+    "version": "1.1.0",
+    "api_version": 2,
+    "description": "Hammond B3 tonewheel organ with percussion, scanner vibrato, overdrive, reverb and Leslie",
+    "author": "Robin Gareus, Fredrik Kilander (port: Pascal Dubucq)",
+    "component_type": "sound_generator",
+    "dsp": "dsp.so",
+
+    "capabilities": {
+        "audio_in": false,
+        "audio_out": true,
+        "midi_in": true,
+        "midi_out": false,
+        "chainable": true,
+
+        "chain_params": [
+            { "key": "drawbar_0", "name": "16'",     "type": "int", "min": 0, "max": 8, "default": 8 },
+            { "key": "drawbar_1", "name": "5 1/3'",  "type": "int", "min": 0, "max": 8, "default": 8 },
+            { "key": "drawbar_2", "name": "8'",      "type": "int", "min": 0, "max": 8, "default": 8 },
+            { "key": "drawbar_3", "name": "4'",      "type": "int", "min": 0, "max": 8, "default": 0 },
+            { "key": "drawbar_4", "name": "2 2/3'",  "type": "int", "min": 0, "max": 8, "default": 0 },
+            { "key": "drawbar_5", "name": "2'",      "type": "int", "min": 0, "max": 8, "default": 0 },
+            { "key": "drawbar_6", "name": "1 3/5'",  "type": "int", "min": 0, "max": 8, "default": 0 },
+            { "key": "drawbar_7", "name": "1 1/3'",  "type": "int", "min": 0, "max": 8, "default": 0 },
+            { "key": "drawbar_8", "name": "1'",      "type": "int", "min": 0, "max": 8, "default": 0 },
+
+            { "key": "perc_enable",   "name": "Perc",  "type": "enum", "min": 0, "max": 1, "default": 1, "options": ["Off", "On"] },
+            { "key": "perc_volume",   "name": "Level", "type": "enum", "min": 0, "max": 1, "default": 0, "options": ["Norm", "Soft"] },
+            { "key": "perc_decay",    "name": "Decay", "type": "enum", "min": 0, "max": 1, "default": 1, "options": ["Slow", "Fast"] },
+            { "key": "perc_harmonic", "name": "Harm",  "type": "enum", "min": 0, "max": 1, "default": 1, "options": ["3rd", "2nd"] },
+
+            { "key": "vibrato_knob",  "name": "Scanner", "type": "enum", "min": 0, "max": 5, "default": 1, "options": ["V1", "C1", "V2", "C2", "V3", "C3"] },
+            { "key": "vibrato_upper", "name": "Upper",   "type": "enum", "min": 0, "max": 1, "default": 1, "options": ["Off", "On"] },
+            { "key": "vibrato_lower", "name": "Lower",   "type": "enum", "min": 0, "max": 1, "default": 0, "options": ["Off", "On"] },
+
+            { "key": "od_enable",    "name": "Drive", "type": "enum",  "min": 0, "max": 1, "default": 0, "options": ["Off", "On"] },
+            { "key": "od_character", "name": "Char",  "type": "float", "min": 0, "max": 1, "default": 0.5 },
+            { "key": "od_input",     "name": "In",    "type": "float", "min": 0, "max": 1, "default": 0.357 },
+            { "key": "od_output",    "name": "Out",   "type": "float", "min": 0, "max": 1, "default": 0.079 },
+
+            { "key": "reverb_mix", "name": "Reverb", "type": "float", "min": 0, "max": 1, "default": 0.25 },
+            { "key": "rotary",     "name": "Leslie", "type": "enum",  "min": 0, "max": 2, "default": 0, "options": ["Slow", "Stop", "Fast"] },
+            { "key": "volume",     "name": "Swell",  "type": "float", "min": 0, "max": 1, "default": 0.8 },
+
+            { "key": "ready", "name": "RDY", "type": "int", "min": 0, "max": 1, "access": "read", "live": true }
+        ],
+
+        "ui_hierarchy": {
+            "levels": {
+                "root": {
+                    "name": "setBfree",
+                    "knobs": ["drawbar_0", "drawbar_1", "drawbar_2", "volume", "reverb_mix", "rotary", "perc_enable", "ready"],
+                    "params": [
+                        { "level": "drawbars",   "label": "Drawbars" },
+                        { "level": "percussion", "label": "Percussion" },
+                        { "level": "vibrato",    "label": "Vibrato" },
+                        { "level": "drive",      "label": "Overdrive" },
+                        { "level": "output",     "label": "Output" }
+                    ]
+                },
+                "drawbars": {
+                    "name": "Drawbars",
+                    "knobs": ["drawbar_0", "drawbar_1", "drawbar_2", "drawbar_3", "drawbar_4", "drawbar_5", "drawbar_6", "drawbar_7"],
+                    "params": [
+                        { "key": "drawbar_0" }, { "key": "drawbar_1" }, { "key": "drawbar_2" },
+                        { "key": "drawbar_3" }, { "key": "drawbar_4" }, { "key": "drawbar_5" },
+                        { "key": "drawbar_6" }, { "key": "drawbar_7" }, { "key": "drawbar_8" }
+                    ]
+                },
+                "percussion": {
+                    "name": "Percussion",
+                    "knobs": ["perc_enable", "perc_volume", "perc_decay", "perc_harmonic"],
+                    "params": [
+                        { "key": "perc_enable" }, { "key": "perc_volume" },
+                        { "key": "perc_decay" }, { "key": "perc_harmonic" }
+                    ]
+                },
+                "vibrato": {
+                    "name": "Vibrato",
+                    "knobs": ["vibrato_knob", "vibrato_upper", "vibrato_lower"],
+                    "params": [
+                        { "key": "vibrato_knob" }, { "key": "vibrato_upper" }, { "key": "vibrato_lower" }
+                    ]
+                },
+                "drive": {
+                    "name": "Overdrive",
+                    "knobs": ["od_enable", "od_character", "od_input", "od_output"],
+                    "params": [
+                        { "key": "od_enable" }, { "key": "od_character" },
+                        { "key": "od_input" }, { "key": "od_output" }
+                    ]
+                },
+                "output": {
+                    "name": "Output",
+                    "knobs": ["rotary", "reverb_mix", "volume", "ready"],
+                    "params": [
+                        { "key": "rotary" }, { "key": "reverb_mix" },
+                        { "key": "volume" }, { "key": "ready" }
+                    ]
+                }
+            }
+        }
+    }
+}
