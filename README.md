@@ -1,4 +1,4 @@
-# b5 — setBfree Tonewheel Organ for Schwung
+# schwung-setbfree — Tonewheel Organ for Schwung
 
 A port of [setBfree](https://github.com/pantherb/setBfree) (Hammond B3 emulation
 by Robin Gareus and Fredrik Kilander) to a
@@ -8,13 +8,132 @@ the Ableton Move.
 91 tonewheels, 9 drawbars, scanner vibrato, percussion, tube overdrive, reverb
 and a Leslie cabinet.
 
+## Controls
+
+Five pages, in this order. The root level is pure navigation — it declares no
+knobs of its own, so the knob grid emits no page for it and **opens directly on
+Drawbars**; in the list menu it's just the five rows below, with the encoders
+handed to the Drawbars row.
+
+```
+ Drawbars   16'  5 1/3'  8'  4'  2 2/3'  2'  1 3/5'  1 1/3'   (+ 1' in the list)
+ Output     Leslie  Reverb  Swell  RDY
+ Percussion Perc  Level  Decay  Harm
+ Vibrato    Scanner  Upper  Lower
+ Overdrive  Drive  Char  In  Out
+```
+
+### Drawbars — nine additive harmonics, 0..8
+
+Each bar adds one harmonic to every note played. `0` is fully in (silent), `8`
+fully out (loudest) — the same numbering as the hardware tabs.
+
+| # | Footage | Interval | Default |
+|---|---------|----------|---------|
+| 0 | 16'     | sub-octave | 8 |
+| 1 | 5 1/3'  | sub-third  | 8 |
+| 2 | 8'      | fundamental | 8 |
+| 3 | 4'      | octave | 0 |
+| 4 | 2 2/3'  | twelfth | 0 |
+| 5 | 2'      | fifteenth | 0 |
+| 6 | 1 3/5'  | seventeenth | 0 |
+| 7 | 1 1/3'  | nineteenth | 0 |
+| 8 | 1'      | twenty-second | 0 |
+
+The default `88 8000 000` is the standard jazz comping registration.
+
+Nine bars do not fit eight encoders. Bars 0–7 are the knob row; bar 8 (`1'`) is
+in the page's parameter list, so it's reachable in the menu and lands on a
+continuation page in the knob grid.
+
+### Output
+
+- **Leslie** — Slow / Stop / Fast (default Slow). Rotating horn plus rotating
+  bass drum. Slow is chorale, Fast is tremolo, Stop is the dry cabinet. The
+  speed *ramps*, and horn and drum have different inertia, so they drift apart
+  in transit and lock back together — switching mid-phrase is the effect.
+- **Reverb** — 0..1 wet mix (default 0.25). 0.2–0.4 sits behind the organ;
+  above 0.6 it washes.
+- **Swell** — 0..1 (default 0.8). The expression pedal, **not** a volume knob:
+  it sits *before* the overdrive, so backing it off cleans the tone as well as
+  quieting it.
+- **RDY** — read-only status, see below.
+
+#### RDY (read-only)
+
+**This is a status readout, not a control.** Building the organ — 91 tonewheels,
+the play matrix, the taper lists — takes about a second, and it cannot happen on
+the audio callback (see [Deferred initialisation](#deferred-initialisation)). So
+`create_instance` returns immediately and a background worker builds the engine.
+
+`RDY` reads **0 while that worker is still building and 1 once the organ can
+sound.** The module outputs silence while it reads 0; MIDI you send in the
+meantime is queued and plays on the first audible block. It goes 0 → 1 exactly
+once per instance and never returns to 0 — loading a new preset into the slot
+creates a fresh instance, which starts at 0 again.
+
+Turning the knob does nothing: it's declared `"access": "read"`. It earns its
+place by making a silent module right after load read as "still loading" rather
+than "broken".
+
+### Percussion — a single decaying tap on attack
+
+Fires on the attack of the *first* key pressed and will not retrigger until
+every key is released, which is why it rewards detached playing.
+
+- **Perc** — Off / On (default On)
+- **Level** — Norm / Soft (default Norm). Soft lowers the tap relative to the drawbars.
+- **Decay** — Slow / Fast (default Fast)
+- **Harm** — 3rd / 2nd (default 2nd). 2nd is the bright bark, 3rd the hollow one.
+
+As on real hardware, engaging percussion steals the 1' drawbar and thins the
+overall output slightly.
+
+### Vibrato — the mechanical scanner
+
+A swept delay line driven by a rotating capacitor, not a pitch LFO.
+
+- **Scanner** — `V1 C1 V2 C2 V3 C3` (default C1). `V` settings are vibrato
+  (pitch only, shallow to deep); `C` settings are chorus, which mixes the dry
+  signal back in — that's where the shimmer comes from. C3 is the famous one.
+- **Upper** — Off / On (default On)
+- **Lower** — Off / On (default Off)
+
+Upper and Lower are the per-manual enables. **With both off, Scanner does
+nothing.** Since this port has no lower manual, `Lower` has no audible effect —
+it's exposed because the engine takes it.
+
+### Overdrive — tube preamp, ahead of the Leslie
+
+- **Drive** — Off / On (default **Off**; the other three do nothing until it's on)
+- **Char** — 0..1 (default 0.5). Curve shape, soft to hard.
+- **In** — 0..1 (default 0.357). Drives the stage.
+- **Out** — 0..1 (default 0.079). Trims the level back down.
+
+`In` and `Out` are a matched pair — raising `In` without lowering `Out` gets loud
+fast. The low `Out` default is deliberate.
+
+### MIDI
+
+Notes play the upper manual; anything outside 36–96 folds into range by octaves.
+`CC 11` is expression (same as Swell), `CC 91` reverb mix, `CC 120` all sound
+off, `CC 123` all notes off.
+
+**Velocity is ignored** — a tonewheel key is a set of switches, open or closed.
+Use Swell for dynamics.
+
+Changing any of the above in the on-device menu requires no rebuild *except* the
+layout itself; see [Parameters](#parameters) for why the hierarchy is compiled in.
+
+
 ## Install
 
-Requires Docker, and SSH enabled on the Move (development settings page).
+Requires Docker, and SSH enabled on the Move (development settings page). Note, you might get a DNS error when running the install.sh. An option to solve this is to run docker with --network host option: 
+`docker run --network host `
 
 ```bash
-git clone https://github.com/<you>/b5.git
-cd b5
+git clone https://github.com/<you>/schwung-setbfree.git
+cd schwung-setbfree
 ./scripts/build.sh
 ./scripts/install.sh
 ```
@@ -27,7 +146,14 @@ entirely.
 `install.sh` defaults to `ableton@move.local`. Override with:
 
 ```bash
-DEVICE=ableton@move5 ./scripts/install.sh
+DEVICE=ableton@move5.local ./scripts/install.sh
+```
+
+To deploy to your device if it has another name like `move5`, first build and then run:
+
+```bash
+./scripts/build.sh
+DEVICE=ableton@move5.local ./scripts/install.sh
 ```
 
 ## What gets built

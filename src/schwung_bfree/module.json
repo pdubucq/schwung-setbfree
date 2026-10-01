@@ -52,13 +52,14 @@
             "levels": {
                 "root": {
                     "name": "setBfree",
-                    "knobs": ["drawbar_0", "drawbar_1", "drawbar_2", "volume", "reverb_mix", "rotary", "perc_enable", "ready"],
+                    "knobs": [],
+                    "children": "drawbars",
                     "params": [
                         { "level": "drawbars",   "label": "Drawbars" },
+                        { "level": "output",     "label": "Output" },
                         { "level": "percussion", "label": "Percussion" },
                         { "level": "vibrato",    "label": "Vibrato" },
-                        { "level": "drive",      "label": "Overdrive" },
-                        { "level": "output",     "label": "Output" }
+                        { "level": "drive",      "label": "Overdrive" }
                     ]
                 },
                 "drawbars": {
@@ -68,6 +69,14 @@
                         { "key": "drawbar_0" }, { "key": "drawbar_1" }, { "key": "drawbar_2" },
                         { "key": "drawbar_3" }, { "key": "drawbar_4" }, { "key": "drawbar_5" },
                         { "key": "drawbar_6" }, { "key": "drawbar_7" }, { "key": "drawbar_8" }
+                    ]
+                },
+                "output": {
+                    "name": "Output",
+                    "knobs": ["rotary", "reverb_mix", "volume", "ready"],
+                    "params": [
+                        { "key": "rotary" }, { "key": "reverb_mix" },
+                        { "key": "volume" }, { "key": "ready" }
                     ]
                 },
                 "percussion": {
@@ -91,14 +100,6 @@
                     "params": [
                         { "key": "od_enable" }, { "key": "od_character" },
                         { "key": "od_input" }, { "key": "od_output" }
-                    ]
-                },
-                "output": {
-                    "name": "Output",
-                    "knobs": ["rotary", "reverb_mix", "volume", "ready"],
-                    "params": [
-                        { "key": "rotary" }, { "key": "reverb_mix" },
-                        { "key": "volume" }, { "key": "ready" }
                     ]
                 }
             }

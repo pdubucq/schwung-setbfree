@@ -47,6 +47,7 @@ if ! command -v aarch64-linux-gnu-gcc >/dev/null 2>&1; then
     # -u maps the caller's uid/gid so build/ and dist/ do not come back owned
     # by root on the host.
     exec docker run --rm \
+        --network host \
         -v "$REPO_ROOT:/work" \
         -u "$(id -u):$(id -g)" \
         -w /work \
