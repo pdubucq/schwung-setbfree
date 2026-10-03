@@ -4,6 +4,7 @@
 # Usage:  ./scripts/release.sh 0.1.1
 #         ./scripts/release.sh 0.1.1 --draft          # review on GitHub first
 #         ./scripts/release.sh 0.1.1 --skip-tests     # skip the native test run
+#         ./scripts/release.sh 0.1.1 --skip-build     # upload the existing dist/ tarball (implies --skip-tests)
 #         ./scripts/release.sh 0.1.1 --notes "text"   # default: generated from commits
 #
 # Needs the GitHub CLI (`gh`, logged in via `gh auth login`) and Docker (or an
@@ -27,6 +28,7 @@ fail() { echo "FAIL: $*" >&2; exit 1; }
 VERSION=""
 DRAFT=0
 SKIP_TESTS=0
+SKIP_BUILD=0
 NOTES=""
 
 while [ $# -gt 0 ]; do
@@ -34,7 +36,8 @@ while [ $# -gt 0 ]; do
         --draft)       DRAFT=1 ;;
         --skip-tests)  SKIP_TESTS=1 ;;
         --notes)       shift; [ $# -gt 0 ] || fail "--notes needs a value"; NOTES="$1" ;;
-        -h|--help)     sed -n '2,17p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
+        --skip-build)  SKIP_BUILD=1 ;;
+        -h|--help)     sed -n '2,18p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
         -*)            fail "unknown option: $1" ;;
         *)             [ -z "$VERSION" ] || fail "version given twice"; VERSION="${1#v}" ;;
     esac
@@ -81,15 +84,20 @@ echo "=== releasing $TAG from $(git rev-parse --short HEAD) ==="
 # Test, then build. The tarball is rebuilt from scratch — never upload whatever
 # happens to be in dist/ from an earlier run.
 # ---------------------------------------------------------------------
-if [ "$SKIP_TESTS" -eq 0 ]; then
-    ./scripts/test.sh
+if [ "$SKIP_BUILD" -eq 1 ]; then
+    echo "--- skipping tests and build (--skip-build): using existing $ASSET ---"
+    [ -f "$ASSET" ] || fail "$ASSET does not exist. Build first (./scripts/build.sh) or drop --skip-build."
 else
-    echo "--- skipping tests (--skip-tests) ---"
+    if [ "$SKIP_TESTS" -eq 0 ]; then
+        ./scripts/test.sh
+    else
+        echo "--- skipping tests (--skip-tests) ---"
+    fi
+
+    ./scripts/build.sh
+
+    [ -f "$ASSET" ] || fail "$ASSET was not produced by the build."
 fi
-
-./scripts/build.sh
-
-[ -f "$ASSET" ] || fail "$ASSET was not produced by the build."
 
 # The thing on GitHub must be the thing the manifest describes.
 tar -xzOf "$ASSET" setBfree-organ/module.json | grep -q "\"version\"[[:space:]]*:[[:space:]]*\"$VERSION\"" \
