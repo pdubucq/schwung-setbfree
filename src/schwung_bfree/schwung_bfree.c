@@ -178,7 +178,11 @@ static void cc(plugin_instance_t *inst, const char *name, int val)
 {
     if (val < 0) val = 0;
     if (val > 127) val = 127;
-    notifyControlChangeByName(inst->b.midicfg, name, (unsigned char)val);
+    /* callMIDIControlFunction runs the registered handler (and then the
+     * notify hook). notifyControlChangeByName ONLY fires the hook — it exists
+     * for the handlers to tell a UI "I changed" — so using it here left every
+     * non-drawbar parameter silently inert. */
+    callMIDIControlFunction(inst->b.midicfg, name, (unsigned char)val);
 }
 
 static int f_to_cc(float v)
@@ -231,7 +235,7 @@ static void set_defaults(plugin_instance_t *inst)
     inst->perc_decay    = 1;   /* fast */
     inst->perc_harmonic = 1;   /* 2nd */
 
-    inst->vibrato_knob  = 1;   /* C1 */
+    inst->vibrato_knob  = 5;   /* C3 */
     inst->vibrato_upper = 1;
     inst->vibrato_lower = 0;
 
@@ -240,7 +244,7 @@ static void set_defaults(plugin_instance_t *inst)
     inst->od_input     = 0.3567f;  /* overdrive.inputgain default */
     inst->od_output    = 0.0787f;  /* overdrive.outputgain default */
 
-    inst->reverb_mix = 0.25f;
+    inst->reverb_mix = 0.1f;   /* setBfree's own reverb.mix default */
     inst->rotary     = 0;          /* slow */
     inst->volume     = 0.8f;
 }
@@ -618,7 +622,7 @@ int plugin_get_param(void *inst_ptr, const char *key, char *out, int len)
           "{\"key\":\"perc_volume\",\"name\":\"Level\",\"type\":\"enum\",\"min\":0,\"max\":1,\"default\":0,\"options\":[\"Norm\",\"Soft\"]},"
           "{\"key\":\"perc_decay\",\"name\":\"Decay\",\"type\":\"enum\",\"min\":0,\"max\":1,\"default\":1,\"options\":[\"Slow\",\"Fast\"]},"
           "{\"key\":\"perc_harmonic\",\"name\":\"Harm\",\"type\":\"enum\",\"min\":0,\"max\":1,\"default\":1,\"options\":[\"3rd\",\"2nd\"]},"
-          "{\"key\":\"vibrato_knob\",\"name\":\"Scanner\",\"type\":\"enum\",\"min\":0,\"max\":5,\"default\":1,"
+          "{\"key\":\"vibrato_knob\",\"name\":\"Scanner\",\"type\":\"enum\",\"min\":0,\"max\":5,\"default\":5,"
             "\"options\":[\"V1\",\"C1\",\"V2\",\"C2\",\"V3\",\"C3\"]},"
           "{\"key\":\"vibrato_upper\",\"name\":\"Upper\",\"type\":\"enum\",\"min\":0,\"max\":1,\"default\":1,\"options\":[\"Off\",\"On\"]},"
           "{\"key\":\"vibrato_lower\",\"name\":\"Lower\",\"type\":\"enum\",\"min\":0,\"max\":1,\"default\":0,\"options\":[\"Off\",\"On\"]},"
@@ -626,7 +630,7 @@ int plugin_get_param(void *inst_ptr, const char *key, char *out, int len)
           "{\"key\":\"od_character\",\"name\":\"Char\",\"type\":\"float\",\"min\":0,\"max\":1,\"default\":0.5},"
           "{\"key\":\"od_input\",\"name\":\"In\",\"type\":\"float\",\"min\":0,\"max\":1,\"default\":0.357},"
           "{\"key\":\"od_output\",\"name\":\"Out\",\"type\":\"float\",\"min\":0,\"max\":1,\"default\":0.079},"
-          "{\"key\":\"reverb_mix\",\"name\":\"Reverb\",\"type\":\"float\",\"min\":0,\"max\":1,\"default\":0.25},"
+          "{\"key\":\"reverb_mix\",\"name\":\"Reverb\",\"type\":\"float\",\"min\":0,\"max\":1,\"default\":0.1},"
           "{\"key\":\"rotary\",\"name\":\"Leslie\",\"type\":\"enum\",\"min\":0,\"max\":2,\"default\":0,"
             "\"options\":[\"Slow\",\"Stop\",\"Fast\"]},"
           "{\"key\":\"volume\",\"name\":\"Swell\",\"type\":\"float\",\"min\":0,\"max\":1,\"default\":0.8},"

@@ -481,8 +481,6 @@ void ctl_biased (void *d, unsigned char uc) {
 void fctl_biased_fb (void *pa, float u) {
   struct b_preamp *pp = (struct b_preamp *) pa;
   pp->adwFb = 0.999 * u;
-  printf ("\rFbk=%10.4f", pp->adwFb);
-  fflush (stdout);
 }
 
 void ctl_biased_fb (void *d, unsigned char uc) {
@@ -495,8 +493,6 @@ void ctl_biased_fb (void *d, unsigned char uc) {
 void fctl_sagtoBias (void *pa, float u) {
   struct b_preamp *pp = (struct b_preamp *) pa;
   pp->sagZgb = 0 + ((0.05 - 0) * u);
-  printf ("\rpp->ZGB=%10.4f", pp->sagZgb);
-  fflush (stdout);
 }
 
 void ctl_sagtoBias (void *d, unsigned char uc) {
@@ -509,8 +505,6 @@ void ctl_sagtoBias (void *d, unsigned char uc) {
 void fctl_biased_fb2 (void *pa, float u) {
   struct b_preamp *pp = (struct b_preamp *) pa;
   pp->adwFb2 = 0.999 * u;
-  printf ("\rFb2=%10.4f", pp->adwFb2);
-  fflush (stdout);
 }
 
 void ctl_biased_fb2 (void *d, unsigned char uc) {
@@ -523,8 +517,6 @@ void ctl_biased_fb2 (void *d, unsigned char uc) {
 void fctl_biased_gfb (void *pa, float u) {
   struct b_preamp *pp = (struct b_preamp *) pa;
   pp->adwGfb = -0.999 * u;
-  printf ("\rGfb=%10.4f", pp->adwGfb);
-  fflush (stdout);
 }
 
 void ctl_biased_gfb (void *d, unsigned char uc) {
@@ -559,8 +551,6 @@ void fctl_biased_fat (void *d, float f) {
 void setInputGain (void *pa, unsigned char uc) {
   struct b_preamp *pp = (struct b_preamp *) pa;
   pp->inputGain = 0.001 + ((10 - 0.001) * (((float) uc) / 127.0));
-  printf ("\rINP:%10.4lf", pp->inputGain);
-  fflush (stdout);
 }
 
 void fsetInputGain (void *d, float f) {
@@ -572,8 +562,6 @@ void fsetInputGain (void *d, float f) {
 void setOutputGain (void *pa, unsigned char uc) {
   struct b_preamp *pp = (struct b_preamp *) pa;
   pp->outputGain = 0.1 + ((10 - 0.1) * (((float) uc) / 127.0));
-  printf ("\rOUT:%10.4lf", pp->outputGain);
-  fflush (stdout);
 }
 
 void fsetOutputGain (void *d, float f) {

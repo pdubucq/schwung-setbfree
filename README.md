@@ -52,7 +52,7 @@ continuation page in the knob grid.
   bass drum. Slow is chorale, Fast is tremolo, Stop is the dry cabinet. The
   speed *ramps*, and horn and drum have different inertia, so they drift apart
   in transit and lock back together — switching mid-phrase is the effect.
-- **Reverb** — 0..1 wet mix (default 0.25). 0.2–0.4 sits behind the organ;
+- **Reverb** — 0..1 wet mix (default 0.1, setBfree's own). 0.2–0.4 sits behind the organ;
   above 0.6 it washes.
 - **Swell** — 0..1 (default 0.8). The expression pedal, **not** a volume knob:
   it sits *before* the overdrive, so backing it off cleans the tone as well as
@@ -93,7 +93,7 @@ overall output slightly.
 
 A swept delay line driven by a rotating capacitor, not a pitch LFO.
 
-- **Scanner** — `V1 C1 V2 C2 V3 C3` (default C1). `V` settings are vibrato
+- **Scanner** — `V1 C1 V2 C2 V3 C3` (default C3). `V` settings are vibrato
   (pitch only, shallow to deep); `C` settings are chorus, which mixes the dry
   signal back in — that's where the shimmer comes from. C3 is the famous one.
 - **Upper** — Off / On (default On)

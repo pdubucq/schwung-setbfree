@@ -142,6 +142,41 @@ static audio_stats_t analyse(const int16_t *buf, int frames)
     return s;
 }
 
+/* ---- parameter effect probe --------------------------------------- */
+
+/* Deterministic fingerprint of 0.4 s of a held chord on a FRESH instance with
+ * one parameter changed. Two instances given identical input produce identical
+ * output, so any difference is attributable to the parameter. */
+static double fingerprint(const plugin_api_v2_t *api, const char *key, const char *value)
+{
+    void *q = api->create_instance(".", "{}");
+    if (!q) return -1.0;
+    int16_t b[128 * 2];
+    char v[64];
+    memset(b, 0, sizeof(b));
+    double start = now_ms();
+    for (;;) {
+        if (api->get_param(q, "ready", v, sizeof(v)) > 0 && atoi(v) == 1) break;
+        if (now_ms() - start > 10000.0) { api->destroy_instance(q); return -1.0; }
+        struct timespec ts = { 0, 5 * 1000 * 1000 };
+        nanosleep(&ts, NULL);
+        api->render_block(q, b, 128);
+    }
+    if (key) api->set_param(q, key, value);
+    static const uint8_t notes[3] = { 60, 64, 67 };
+    for (int i = 0; i < 3; i++) {
+        uint8_t on[3] = { 0x90, notes[i], 100 };
+        api->on_midi(q, on, 3, MOVE_MIDI_SOURCE_HOST);
+    }
+    double sum = 0.0;
+    for (int blk = 0; blk < 140; blk++) {
+        api->render_block(q, b, 128);
+        for (int i = 0; i < 256; i++) sum += (double)b[i] * (double)((i % 11) + 1);
+    }
+    api->destroy_instance(q);
+    return sum;
+}
+
 /* ---- manifest/plugin agreement ------------------------------------ */
 
 #define MAX_KEYS 64
@@ -532,6 +567,32 @@ int main(int argc, char **argv)
         api->on_midi(inst, panic, 3, MOVE_MIDI_SOURCE_HOST);
         api->render_block(inst, buf, 128);
         CHECK(1, "malformed and full-range MIDI handled");
+    }
+
+    /* ---------------------------------------------------------------
+     * Every control must change the sound. Only the drawbars used to: the
+     * other parameters went through notifyControlChangeByName, which fires the
+     * UI hook but never calls the handler, and every structural check passed.
+     * --------------------------------------------------------------- */
+    {
+        static const struct { const char *key, *value; } probes[] = {
+            { "perc_enable",   "0"   }, { "perc_volume",   "1"   },
+            { "perc_decay",    "0"   }, { "perc_harmonic", "0"   },
+            { "vibrato_knob",  "0"   }, { "vibrato_upper", "0"   },
+            { "od_enable",     "1"   },
+            { "reverb_mix",    "0.8" }, { "rotary",        "2"   },
+            { "volume",        "0.2" },
+        };
+        double base = fingerprint(api, NULL, NULL);
+        REQUIRE(base != -1.0, "parameter probe baseline rendered");
+        for (size_t i = 0; i < sizeof(probes) / sizeof(probes[0]); i++) {
+            double f = fingerprint(api, probes[i].key, probes[i].value);
+            CHECK(fabs(f - base) > 1e-6 * fabs(base) + 1.0,
+                  "%s=%s changes the sound", probes[i].key, probes[i].value);
+        }
+
+        api->get_param(inst, "vibrato_knob", val, sizeof(val));
+        CHECK(atoi(val) == 5, "vibrato defaults to C3 (got %s)", val);
     }
 
     /* ---------------------------------------------------------------

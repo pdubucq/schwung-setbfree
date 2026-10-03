@@ -32,7 +32,7 @@
             { "key": "perc_decay",    "name": "Decay", "type": "enum", "min": 0, "max": 1, "default": 1, "options": ["Slow", "Fast"] },
             { "key": "perc_harmonic", "name": "Harm",  "type": "enum", "min": 0, "max": 1, "default": 1, "options": ["3rd", "2nd"] },
 
-            { "key": "vibrato_knob",  "name": "Scanner", "type": "enum", "min": 0, "max": 5, "default": 1, "options": ["V1", "C1", "V2", "C2", "V3", "C3"] },
+            { "key": "vibrato_knob",  "name": "Scanner", "type": "enum", "min": 0, "max": 5, "default": 5, "options": ["V1", "C1", "V2", "C2", "V3", "C3"] },
             { "key": "vibrato_upper", "name": "Upper",   "type": "enum", "min": 0, "max": 1, "default": 1, "options": ["Off", "On"] },
             { "key": "vibrato_lower", "name": "Lower",   "type": "enum", "min": 0, "max": 1, "default": 0, "options": ["Off", "On"] },
 
@@ -41,7 +41,7 @@
             { "key": "od_input",     "name": "In",    "type": "float", "min": 0, "max": 1, "default": 0.357 },
             { "key": "od_output",    "name": "Out",   "type": "float", "min": 0, "max": 1, "default": 0.079 },
 
-            { "key": "reverb_mix", "name": "Reverb", "type": "float", "min": 0, "max": 1, "default": 0.25 },
+            { "key": "reverb_mix", "name": "Reverb", "type": "float", "min": 0, "max": 1, "default": 0.1 },
             { "key": "rotary",     "name": "Leslie", "type": "enum",  "min": 0, "max": 2, "default": 0, "options": ["Slow", "Stop", "Fast"] },
             { "key": "volume",     "name": "Swell",  "type": "float", "min": 0, "max": 1, "default": 0.8 },
 
