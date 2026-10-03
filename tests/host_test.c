@@ -437,7 +437,7 @@ int main(int argc, char **argv)
             "drawbar_0", "drawbar_1", "drawbar_2", "drawbar_3", "drawbar_4",
             "drawbar_5", "drawbar_6", "drawbar_7", "drawbar_8",
             "perc_enable", "perc_volume", "perc_decay", "perc_harmonic",
-            "vibrato_knob", "vibrato_upper", "vibrato_lower",
+            "vibrato_knob", "vibrato_upper", "vibrato_lower", "vibrato_speed",
             "od_enable", "od_character", "od_input", "od_output",
             "reverb_mix", "rotary", "volume",
         };
@@ -579,6 +579,7 @@ int main(int argc, char **argv)
             { "perc_enable",   "0"   }, { "perc_volume",   "1"   },
             { "perc_decay",    "0"   }, { "perc_harmonic", "0"   },
             { "vibrato_knob",  "0"   }, { "vibrato_upper", "0"   },
+            { "vibrato_speed", "20"  },
             { "od_enable",     "1"   },
             { "reverb_mix",    "0.8" }, { "rotary",        "2"   },
             { "volume",        "0.2" },

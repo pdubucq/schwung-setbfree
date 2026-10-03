@@ -131,6 +131,7 @@ typedef struct plugin_instance {
     int   vibrato_knob;         /* 0..5 = v1 c1 v2 c2 v3 c3 */
     int   vibrato_upper;        /* 0/1 */
     int   vibrato_lower;        /* 0/1 */
+    float vibrato_speed;        /* scanner Hz, 4..22 */
     int   od_enable;            /* 0/1 */
     float od_character;         /* 0..1 */
     float od_input;             /* 0..1 */
@@ -208,6 +209,11 @@ static void apply_all_params(plugin_instance_t *inst)
     cc(inst, "vibrato.upper", inst->vibrato_upper ? 127 : 0);
     cc(inst, "vibrato.lower", inst->vibrato_lower ? 127 : 0);
 
+    /* No MIDI control function exists for scanner speed, so this one bypasses
+     * cc(). It only recomputes one integer (statorIncrement), so it is safe on
+     * the callback thread and changes smoothly. */
+    setScannerFrequency(&inst->b.synth->inst_vibrato, (double)inst->vibrato_speed);
+
     /* setCleanCC inverts: >63 means NOT clean, i.e. overdrive engaged. */
     cc(inst, "overdrive.enable",     inst->od_enable ? 127 : 0);
     cc(inst, "overdrive.character",  f_to_cc(inst->od_character));
@@ -238,11 +244,12 @@ static void set_defaults(plugin_instance_t *inst)
     inst->vibrato_knob  = 5;   /* C3 */
     inst->vibrato_upper = 1;
     inst->vibrato_lower = 0;
+    inst->vibrato_speed = 7.25f;   /* scanner.hz default */
 
     inst->od_enable    = 0;
-    inst->od_character = 0.5f;
-    inst->od_input     = 0.3567f;  /* overdrive.inputgain default */
-    inst->od_output    = 0.0787f;  /* overdrive.outputgain default */
+    inst->od_character = 0.07f;
+    inst->od_input     = 0.26f;
+    inst->od_output    = 0.44f;
 
     inst->reverb_mix = 0.1f;   /* setBfree's own reverb.mix default */
     inst->rotary     = 0;          /* slow */
@@ -526,6 +533,13 @@ void plugin_set_param(void *inst_ptr, const char *key, const char *val)
     INT_PARAM("od_enable",     od_enable,     0, 1, "overdrive.enable", inst->od_enable ? 127 : 0)
     INT_PARAM("rotary",        rotary,        0, 2, "rotary.speed-preset", inst->rotary * 43 + 21)
 
+    if (strcmp(key, "vibrato_speed") == 0) {
+        inst->vibrato_speed = clampf(f, 4.0f, 22.0f);
+        if (ready) setScannerFrequency(&inst->b.synth->inst_vibrato, (double)inst->vibrato_speed);
+        else inst->params_dirty = 1;
+        return;
+    }
+
     FLT_PARAM("od_character", od_character, "overdrive.character")
     FLT_PARAM("od_input",     od_input,     "overdrive.inputgain")
     FLT_PARAM("od_output",    od_output,    "overdrive.outputgain")
@@ -570,6 +584,7 @@ int plugin_get_param(void *inst_ptr, const char *key, char *out, int len)
     if (strcmp(key, "vibrato_upper") == 0) return snprintf(out, len, "%d", inst->vibrato_upper);
     if (strcmp(key, "vibrato_lower") == 0) return snprintf(out, len, "%d", inst->vibrato_lower);
     if (strcmp(key, "od_enable")     == 0) return snprintf(out, len, "%d", inst->od_enable);
+    if (strcmp(key, "vibrato_speed") == 0) return snprintf(out, len, "%.2f", inst->vibrato_speed);
     if (strcmp(key, "rotary")        == 0) return snprintf(out, len, "%d", inst->rotary);
 
     if (strcmp(key, "od_character") == 0) return snprintf(out, len, "%.3f", inst->od_character);
@@ -626,10 +641,11 @@ int plugin_get_param(void *inst_ptr, const char *key, char *out, int len)
             "\"options\":[\"V1\",\"C1\",\"V2\",\"C2\",\"V3\",\"C3\"]},"
           "{\"key\":\"vibrato_upper\",\"name\":\"Upper\",\"type\":\"enum\",\"min\":0,\"max\":1,\"default\":1,\"options\":[\"Off\",\"On\"]},"
           "{\"key\":\"vibrato_lower\",\"name\":\"Lower\",\"type\":\"enum\",\"min\":0,\"max\":1,\"default\":0,\"options\":[\"Off\",\"On\"]},"
+          "{\"key\":\"vibrato_speed\",\"name\":\"Speed\",\"type\":\"float\",\"min\":4,\"max\":22,\"default\":7.25},"
           "{\"key\":\"od_enable\",\"name\":\"Drive\",\"type\":\"enum\",\"min\":0,\"max\":1,\"default\":0,\"options\":[\"Off\",\"On\"]},"
-          "{\"key\":\"od_character\",\"name\":\"Char\",\"type\":\"float\",\"min\":0,\"max\":1,\"default\":0.5},"
-          "{\"key\":\"od_input\",\"name\":\"In\",\"type\":\"float\",\"min\":0,\"max\":1,\"default\":0.357},"
-          "{\"key\":\"od_output\",\"name\":\"Out\",\"type\":\"float\",\"min\":0,\"max\":1,\"default\":0.079},"
+          "{\"key\":\"od_character\",\"name\":\"Char\",\"type\":\"float\",\"min\":0,\"max\":1,\"default\":0.07},"
+          "{\"key\":\"od_input\",\"name\":\"In\",\"type\":\"float\",\"min\":0,\"max\":1,\"default\":0.26},"
+          "{\"key\":\"od_output\",\"name\":\"Out\",\"type\":\"float\",\"min\":0,\"max\":1,\"default\":0.44},"
           "{\"key\":\"reverb_mix\",\"name\":\"Reverb\",\"type\":\"float\",\"min\":0,\"max\":1,\"default\":0.1},"
           "{\"key\":\"rotary\",\"name\":\"Leslie\",\"type\":\"enum\",\"min\":0,\"max\":2,\"default\":0,"
             "\"options\":[\"Slow\",\"Stop\",\"Fast\"]},"
@@ -680,9 +696,10 @@ int plugin_get_param(void *inst_ptr, const char *key, char *out, int len)
                 "{\"key\":\"perc_decay\"},{\"key\":\"perc_harmonic\"}"
               "]},"
             "\"vibrato\":{\"name\":\"Vibrato\","
-              "\"knobs\":[\"vibrato_knob\",\"vibrato_upper\",\"vibrato_lower\"],"
+              "\"knobs\":[\"vibrato_knob\",\"vibrato_upper\",\"vibrato_lower\",\"vibrato_speed\"],"
               "\"params\":["
-                "{\"key\":\"vibrato_knob\"},{\"key\":\"vibrato_upper\"},{\"key\":\"vibrato_lower\"}"
+                "{\"key\":\"vibrato_knob\"},{\"key\":\"vibrato_upper\"},{\"key\":\"vibrato_lower\"},"
+                "{\"key\":\"vibrato_speed\"}"
               "]},"
             "\"drive\":{\"name\":\"Overdrive\","
               "\"knobs\":[\"od_enable\",\"od_character\",\"od_input\",\"od_output\"],"

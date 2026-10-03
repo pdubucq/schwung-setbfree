@@ -98,6 +98,8 @@ A swept delay line driven by a rotating capacitor, not a pitch LFO.
   signal back in — that's where the shimmer comes from. C3 is the famous one.
 - **Upper** — Off / On (default On)
 - **Lower** — Off / On (default Off)
+- **Speed** — 4..22 Hz (default 7.25, the real scanner motor's rate). Faster is
+  a busier shimmer, slower a lazy wobble.
 
 Upper and Lower are the per-manual enables. **With both off, Scanner does
 nothing.** Since this port has no lower manual, `Lower` has no audible effect —
@@ -106,12 +108,12 @@ it's exposed because the engine takes it.
 ### Overdrive — tube preamp, ahead of the Leslie
 
 - **Drive** — Off / On (default **Off**; the other three do nothing until it's on)
-- **Char** — 0..1 (default 0.5). Curve shape, soft to hard.
-- **In** — 0..1 (default 0.357). Drives the stage.
-- **Out** — 0..1 (default 0.079). Trims the level back down.
+- **Char** — 0..1 (default 0.07). Curve shape, soft to hard.
+- **In** — 0..1 (default 0.26). Drives the stage.
+- **Out** — 0..1 (default 0.44). Trims the level back down.
 
 `In` and `Out` are a matched pair — raising `In` without lowering `Out` gets loud
-fast. The low `Out` default is deliberate.
+fast.
 
 ### MIDI
 

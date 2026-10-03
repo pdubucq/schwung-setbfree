@@ -144,6 +144,9 @@
         " which is where the",
         " shimmer comes from.",
         "",
+        "Speed sets the scan",
+        "rate, 4 to 22 Hz.",
+        "",
         "Upper and Lower turn",
         "it on per manual.",
         "With both off the",
@@ -173,7 +176,7 @@
         "Raising In without",
         "lowering Out will get",
         "loud fast. Default is",
-        "In 0.36, Out 0.08.",
+        "In 0.26, Out 0.44.",
         "",
         "Drive is off by",
         "default."

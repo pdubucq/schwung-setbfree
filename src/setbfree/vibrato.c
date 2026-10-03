@@ -75,7 +75,7 @@
  * or 1500 rpm (50 Hz models). The usual frequency is somewhere between
  * 7 or 8 Hz.
  */
-static void
+void
 setScannerFrequency (struct b_vibrato* v, double Hertz)
 {
 	v->vibFqHertz = Hertz;

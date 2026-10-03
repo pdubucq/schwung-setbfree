@@ -35,11 +35,12 @@
             { "key": "vibrato_knob",  "name": "Scanner", "type": "enum", "min": 0, "max": 5, "default": 5, "options": ["V1", "C1", "V2", "C2", "V3", "C3"] },
             { "key": "vibrato_upper", "name": "Upper",   "type": "enum", "min": 0, "max": 1, "default": 1, "options": ["Off", "On"] },
             { "key": "vibrato_lower", "name": "Lower",   "type": "enum", "min": 0, "max": 1, "default": 0, "options": ["Off", "On"] },
+            { "key": "vibrato_speed", "name": "Speed",   "type": "float", "min": 4, "max": 22, "default": 7.25 },
 
             { "key": "od_enable",    "name": "Drive", "type": "enum",  "min": 0, "max": 1, "default": 0, "options": ["Off", "On"] },
-            { "key": "od_character", "name": "Char",  "type": "float", "min": 0, "max": 1, "default": 0.5 },
-            { "key": "od_input",     "name": "In",    "type": "float", "min": 0, "max": 1, "default": 0.357 },
-            { "key": "od_output",    "name": "Out",   "type": "float", "min": 0, "max": 1, "default": 0.079 },
+            { "key": "od_character", "name": "Char",  "type": "float", "min": 0, "max": 1, "default": 0.07 },
+            { "key": "od_input",     "name": "In",    "type": "float", "min": 0, "max": 1, "default": 0.26 },
+            { "key": "od_output",    "name": "Out",   "type": "float", "min": 0, "max": 1, "default": 0.44 },
 
             { "key": "reverb_mix", "name": "Reverb", "type": "float", "min": 0, "max": 1, "default": 0.1 },
             { "key": "rotary",     "name": "Leslie", "type": "enum",  "min": 0, "max": 2, "default": 0, "options": ["Slow", "Stop", "Fast"] },
@@ -89,9 +90,10 @@
                 },
                 "vibrato": {
                     "name": "Vibrato",
-                    "knobs": ["vibrato_knob", "vibrato_upper", "vibrato_lower"],
+                    "knobs": ["vibrato_knob", "vibrato_upper", "vibrato_lower", "vibrato_speed"],
                     "params": [
-                        { "key": "vibrato_knob" }, { "key": "vibrato_upper" }, { "key": "vibrato_lower" }
+                        { "key": "vibrato_knob" }, { "key": "vibrato_upper" }, { "key": "vibrato_lower" },
+                        { "key": "vibrato_speed" }
                     ]
                 },
                 "drive": {

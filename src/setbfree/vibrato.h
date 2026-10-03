@@ -70,6 +70,8 @@ extern void reset_vibrato (struct b_vibrato* v);
 extern void init_vibrato (struct b_vibrato* v);
 
 /* tonegen integration */
+extern void setScannerFrequency (struct b_vibrato* v, double Hertz);
+
 extern void resetVibrato (void* tonegen);
 extern void initVibrato (void* tonegen, void* m);
 
