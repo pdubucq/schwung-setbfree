@@ -14,8 +14,8 @@
 # what ends up on the device, so a release whose tag disagrees with its manifest
 # would install as the wrong version. Bump it, commit, push, then run this.
 #
-# Asset: setBfree-organ.tar.gz. The name carries no version on purpose, so
-# .../releases/latest/download/setBfree-organ.tar.gz always resolves.
+# Asset: setbfree-organ-module.tar.gz. The name carries no version on purpose, so
+# .../releases/latest/download/setbfree-organ-module.tar.gz always resolves.
 
 set -euo pipefail
 
@@ -50,7 +50,7 @@ echo "$VERSION" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.]+)?$' \
 
 TAG="v$VERSION"
 MODULE_JSON="src/schwung_bfree/module.json"
-ASSET="dist/setBfree-organ.tar.gz"
+ASSET="dist/setbfree-organ-module.tar.gz"
 
 # ---------------------------------------------------------------------
 # Preconditions. All of these are cheap and all of them are cheaper to find out
@@ -100,7 +100,7 @@ else
 fi
 
 # The thing on GitHub must be the thing the manifest describes.
-tar -xzOf "$ASSET" setBfree-organ/module.json | grep -q "\"version\"[[:space:]]*:[[:space:]]*\"$VERSION\"" \
+tar -xzOf "$ASSET" setbfree-organ/module.json | grep -q "\"version\"[[:space:]]*:[[:space:]]*\"$VERSION\"" \
     || fail "$ASSET contains a module.json that is not version $VERSION."
 
 echo ""

@@ -10,8 +10,8 @@
 #
 # Output:
 #   build/modules/dsp.so   the compiled module
-#   dist/setBfree-organ/   the directory that goes onto the device
-#   dist/setBfree-organ.tar.gz
+#   dist/setbfree-organ/   the directory that goes onto the device
+#   dist/setbfree-organ-module.tar.gz
 
 set -euo pipefail
 
@@ -119,7 +119,7 @@ bash scripts/validate.sh
 # staging step never picked them up, so the deployed directory had a dsp.so
 # and no manifest.
 # ---------------------------------------------------------------------
-MODULE_DIR="$REPO_ROOT/dist/setBfree-organ"
+MODULE_DIR="$REPO_ROOT/dist/setbfree-organ"
 rm -rf "$REPO_ROOT/dist"
 mkdir -p "$MODULE_DIR"
 
@@ -128,7 +128,7 @@ cp src/schwung_bfree/module.json     "$MODULE_DIR/module.json"
 cp src/schwung_bfree/help.json       "$MODULE_DIR/help.json"
 chmod +x "$MODULE_DIR/dsp.so"
 
-tar -czf "$REPO_ROOT/dist/setBfree-organ.tar.gz" -C "$REPO_ROOT/dist" setBfree-organ
+tar -czf "$REPO_ROOT/dist/setbfree-organ-module.tar.gz" -C "$REPO_ROOT/dist" setbfree-organ
 
 echo ""
 echo "Staged $MODULE_DIR"
