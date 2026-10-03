@@ -2,7 +2,7 @@
     "id": "setBfree-organ",
     "name": "setBfree Tonewheel Organ",
     "abbrev": "B3",
-    "version": "1.1.0",
+    "version": "0.1.1",
     "api_version": 2,
     "description": "Hammond B3 tonewheel organ with percussion, scanner vibrato, overdrive, reverb and Leslie",
     "author": "Robin Gareus, Fredrik Kilander (port: Pascal Dubucq)",
